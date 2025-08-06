@@ -1,4 +1,9 @@
-
+//--------------------------------------------------------------
+//
+// muitas vezes eu faço o arquivo no gmsh/Elmer e checo no garfield++ se as coisas estão certas
+// tipo campo elétrico, onde to posicionando os elétrons pra computar avalanche e etc
+//
+//--------------------------------------------------------------
 #include <iostream>
 #include <vector>
 #include <cmath> 
