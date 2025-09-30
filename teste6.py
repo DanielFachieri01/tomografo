@@ -62,9 +62,10 @@ def conectar():
     try:
         rm = pyvisa.ResourceManager()
         multimeter = rm.open_resource('GPIB0::27::INSTR')
-        multimeter.write(":SENSe:FUNCtion 'CURRent'")
-        multimeter.write(":SENSe:CURRent:DC:RANGe:AUTO 0")
         multimeter.write(":SYSTem:ZCHeck ON")
+        multimeter.write(":SENSe:FUNCtion 'CURRent'")
+        multimeter.write(":SENSe:CURRent[:DC]RANGe:AUTO OFF")
+        multimeter.write(":SENSe:CURRent[:DC]:RANGe: 20e-3")
         status_label.config(text="Conectado Keithley 6517B", fg="green")
     except Exception as e:
         multimeter = None
@@ -257,8 +258,8 @@ def save_graph():
 def fundo():
     global bg_photo
     try:
-        #.bg_image = Image.open(r"C:\Users\Hepic\Desktop\6517B\Daniel\logo_simples.jpg") ##pc do lab
-        bg_image = Image.open(r"C:\Users\megat\OneDrive\Área de Trabalho\IFUSP\imagens\logo_simples.jpg") ##pc pessoal daniel
+        bg_image = Image.open(r"C:\Users\Hepic\Desktop\6517B\Daniel\logo_simples.jpg") ##pc do lab
+        #bg_image = Image.open(r"C:\Users\megat\OneDrive\Área de Trabalho\IFUSP\imagens\logo_simples.jpg") ##pc pessoal daniel
         ratio = bg_image.height / bg_image.width
         bg_image = bg_image.resize((300, int(ratio*300)))
         bg_photo = ImageTk.PhotoImage(bg_image)
@@ -273,6 +274,8 @@ def monitorar():
     run_adquirir = True
     dynamic_x = []
     dynamic_y = []
+    multimeter.write(":SYSTem:ZCHeck OFF")
+    multimeter.write(f":SYSTem:SENse:RANGe {vl_res[combo.get()]}") 
 
     adquirir()
 
@@ -306,7 +309,9 @@ def media():
     ax.text(x_media[-1]/2,y_media[-1],f"média = {np.mean(y_media)}")
     canvas.draw()
 
-
+def parar_monitor():
+    global run_adquirir
+    run_adquirir = False
 
 
 
@@ -404,7 +409,7 @@ btn_passo_dec.place(relx=posx1+entryw, rely=posy+2*offset_y+h/2, relwidth=0.03, 
 # Seleção da resolução
 
 opt = ["20 mA","2mA","200 uA", "20 uA","2 uA","200 nA","20 nA","2 nA","200 pA","20 pA"]
-vl_res = {opt[0] : 20e-3, opt[1] : 2e-3,opt[2] : 200e-6,opt[3] :20e-6,opt[4] :2e-6,opt[5] :200e-9,opt[6] :20e-9,opt[7] :2e-9,opt[8]:200e-12,opt[9]:20e-12}
+vl_res = {opt[0] : 10e-3, opt[1] : 1e-3,opt[2] : 100e-6,opt[3] :10e-6,opt[4] :1e-6,opt[5] :100e-9,opt[6] :10e-9,opt[7] :1e-9,opt[8]:100e-12,opt[9]:10e-12}
 
 resolucao = StringVar()       
 combo = ttk.Combobox(fr_scan, textvariable=resolucao, values=opt, state="readonly")
@@ -415,7 +420,7 @@ combo.place(relx=posx1, rely=posy+5*offset_y, relwidth=entryw+0.03, relheight=h)
 start_monitor = Button(fr_monitor, text="Start", relief="groove", command=monitorar)
 start_monitor.place(relx=posx_btn, rely=posy, relwidth=btnw, relheight=h)
 
-stop_monitor = Button(fr_monitor, text="Stop", relief="groove", command=parar_varredura)
+stop_monitor = Button(fr_monitor, text="Stop", relief="groove", command=parar_monitor)
 stop_monitor.place(relx=posx_btn, rely=posy+offset_y, relwidth=btnw, relheight=h)
 
 btn_media = Button(fr_monitor,text="Mean",relief='groove', command = media)
